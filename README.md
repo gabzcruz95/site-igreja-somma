@@ -49,9 +49,9 @@ inteiro vive em `/api`, como Vercel Serverless Functions, publicado junto do fro
 | --- | --- | --- |
 | `POST /api/checkout/create-preference` | `api/checkout/create-preference.js` | Cria a preferência de pagamento no Mercado Pago e devolve a URL de checkout |
 | `POST /api/webhooks/mercadopago` | `api/webhooks/mercadopago.js` | Recebe a confirmação assíncrona de pagamento do Mercado Pago |
-| `POST /api/leads/membership` | `api/leads/[kind].js` | Formulário "Quero fazer parte" |
-| `POST /api/leads/volunteer` | `api/leads/[kind].js` | Formulário "Quero servir" |
-| `POST /api/leads/contact` | `api/leads/[kind].js` | Formulário de contato |
+| `POST /api/leads/membership` | `api/leads/[kind].js` | Formulário "Quero fazer parte" — salva em `public.membership_requests` (Supabase) |
+| `POST /api/leads/volunteer` | `api/leads/[kind].js` | Formulário "Quero servir" — salva em `public.volunteer_requests` (Supabase) |
+| `POST /api/leads/contact` | `api/leads/[kind].js` | Formulário de contato — ainda só valida e loga (nenhuma tabela definida para ele) |
 
 `api/leads/[kind].js` é uma rota dinâmica: o nome entre colchetes (`kind`) captura o segmento da
 URL (`membership`, `volunteer` ou `contact`) e valida os campos obrigatórios de cada formulário.
@@ -76,7 +76,53 @@ Painel do projeto > Settings > Environment Variables:
 | --- | --- | --- | --- |
 | `MP_ACCESS_TOKEN` | Sim, para o checkout funcionar | Só nas funções de `/api` (nunca no frontend) | Access Token do Mercado Pago — comece com uma credencial de **teste** |
 | `SITE_URL` | Recomendada | Só nas funções de `/api` | URL pública final do site, ex. `https://igrejasomma.com.br`. Sem ela, cai para `VERCEL_URL` (gerado automaticamente) |
+| `SUPABASE_URL` | Sim, para os formulários salvarem | Só nas funções de `/api` (nunca no frontend) | URL do projeto Supabase (Project Settings > Data API) |
+| `SUPABASE_SECRET_KEY` | Sim, para os formulários salvarem | Só nas funções de `/api` (nunca no frontend) | Chave **secret** do Supabase (Project Settings > API Keys) — nunca a chave `anon`/pública |
 | `VITE_API_URL` | Não, na maioria dos casos | Frontend (exposta no navegador) | Deixe em branco — só é necessária se a API for hospedada em outro domínio |
+
+## Supabase (formulários "Quero fazer parte" e "Quero servir")
+
+`api/leads/[kind].js` grava cada envio via `@supabase/supabase-js`, usando a **secret key**
+(nunca a `anon`) através de `api/_lib/supabase.js` — só as funções de `/api` importam esse
+arquivo; nada em `src/` (frontend) tem acesso a ele.
+
+As tabelas precisam existir no Supabase **antes** do primeiro envio (a função não as cria):
+
+**`public.membership_requests`**
+
+| Coluna | Vem de (campo do formulário) |
+| --- | --- |
+| `full_name` | Nome completo |
+| `phone` | WhatsApp |
+| `email` | E-mail |
+| `about` | Conte um pouco sobre você |
+| `reason` | Por que você deseja fazer parte da SôMMA? |
+| `contact_consent` | Checkbox de consentimento (boolean) |
+| `status` | Sempre `"new"` |
+
+**`public.volunteer_requests`**
+
+| Coluna | Vem de (campo do formulário) |
+| --- | --- |
+| `full_name` | Nome completo |
+| `phone` | WhatsApp |
+| `email` | E-mail |
+| `about` | Conte um pouco sobre você |
+| `area` | Em qual área gostaria de servir |
+| `has_experience` | Radio "Sim"/"Não" convertido para `true`/`false` |
+| `experience_description` | Conte mais sobre como gostaria de ajudar |
+| `contact_consent` | Checkbox de consentimento (boolean) |
+| `status` | Sempre `"new"` |
+
+**Atenção — uma diferença encontrada ao conferir o código:** o mapeamento original pedia a chave
+`experienciaDescricao`, mas o campo que o formulário de voluntários realmente envia (e sempre
+enviou) chama-se `detalhes` (é o campo de texto livre no fim do formulário). Como o pedido foi
+para não alterar a funcionalidade nem o design existentes, mantive o campo do frontend como
+`detalhes` e apontei ele para a coluna `experience_description` — o dado cai na coluna certa,
+só o nome interno do campo no código é `detalhes` em vez de `experienciaDescricao`.
+
+O formulário de **Contato** continua sem tabela própria — nenhum mapeamento foi especificado
+para ele, então `api/leads/[kind].js` só valida e loga esse caso, como antes.
 
 ## O que ainda depende do Mercado Pago
 
@@ -104,8 +150,10 @@ Painel do projeto > Settings > Environment Variables:
   e redirecionamento para o Checkout Pro do Mercado Pago. Página de confirmação
   (`/loja/confirmacao`) trata os status `approved`/`pending`/`rejected` que o Mercado Pago envia
   de volta.
-- Formulários "Quero fazer parte", "Quero servir" e "Contato" com todos os campos pedidos,
-  checkbox de consentimento, envio para `/api/leads/*` e as mensagens de sucesso especificadas.
+- Formulários "Quero fazer parte" e "Quero servir" com todos os campos pedidos, checkbox de
+  consentimento e as mensagens de sucesso especificadas — salvos de verdade no Supabase
+  (`membership_requests`/`volunteer_requests`) via `/api/leads/*`. O formulário de Contato usa o
+  mesmo endpoint, mas por enquanto só valida e loga (sem tabela própria definida ainda).
 - WhatsApp oficial (+55 11 91218-7730) em botões reais (`wa.me`) no Footer, na página de Contato e
   no CTA final da página de Clãs.
 - SEO básico (title por página via `usePageTitle`, meta description, Open Graph, favicon) e
@@ -155,6 +203,7 @@ api/
   webhooks/mercadopago.js         recebe a confirmação assíncrona de pagamento
   leads/[kind].js                 recebe os formulários (membro, voluntário, contato)
   _lib/site-url.js                helper interno (não é uma rota)
+  _lib/supabase.js                 cliente Supabase (não é uma rota)
 src/
   components/   Header, Footer, Hero, Logo, Button, SectionTitle, cards, etc.
   pages/        Home, About, Services, Clas, Events, Store, Product, Cart, Checkout,
