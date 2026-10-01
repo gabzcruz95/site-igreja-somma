@@ -1,15 +1,15 @@
-import { getSupabaseClient } from '../_lib/supabase.js'
+import { getNeonClient } from '../_lib/neon.js'
 
 /**
  * Vercel Serverless Function: POST /api/leads/:kind
  * onde :kind é "membership", "volunteer" ou "contact".
  *
  * Recebe os formulários "Quero fazer parte" e "Quero servir" e grava cada um
- * na tabela correspondente do Supabase (public.membership_requests /
+ * na tabela correspondente do Neon PostgreSQL (public.membership_requests /
  * public.volunteer_requests). O formulário de contato ("contact") continua
  * apenas validado e logado — nenhuma tabela foi especificada para ele.
  *
- * SUPABASE_SECRET_KEY só é usada aqui (lado servidor) — nunca no frontend.
+ * DATABASE_URL só é usada aqui (lado servidor) — nunca no frontend.
  *
  * TODO antes de produção:
  *  1. Notificar a equipe da igreja quando um novo registro entrar (e-mail, WhatsApp Business API, Slack...).
@@ -32,7 +32,7 @@ function validateLead(body, requiredFields) {
   })
 }
 
-// Mapeamento campo do frontend -> coluna da tabela no Supabase.
+// Mapeamento campo do frontend -> coluna da tabela no Neon PostgreSQL.
 //
 // Observação sobre "volunteer": o mapeamento pedido usa a chave
 // "experienciaDescricao", mas o formulário atual (src/pages/Volunteer.tsx)
@@ -95,15 +95,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const supabase = getSupabaseClient()
+    const sql = getNeonClient()
     const table = kind === 'membership' ? 'membership_requests' : 'volunteer_requests'
     const row = kind === 'membership' ? mapMembership(req.body) : mapVolunteer(req.body)
 
-    const { error } = await supabase.from(table).insert(row)
-
-    if (error) {
-      console.error(`[lead] erro ao salvar em ${table}:`, error)
-      return res.status(500).json({ error: 'Não foi possível salvar seu cadastro. Tente novamente.' })
+    if (kind === 'membership') {
+      await sql`
+        INSERT INTO membership_requests
+          (full_name, phone, email, about, reason, contact_consent, status)
+        VALUES
+          (${row.full_name}, ${row.phone}, ${row.email}, ${row.about}, ${row.reason}, ${row.contact_consent}, ${row.status})
+      `
+    } else {
+      await sql`
+        INSERT INTO volunteer_requests
+          (full_name, phone, email, about, area, has_experience, experience_description, contact_consent, status)
+        VALUES
+          (${row.full_name}, ${row.phone}, ${row.email}, ${row.about}, ${row.area}, ${row.has_experience}, ${row.experience_description}, ${row.contact_consent}, ${row.status})
+      `
     }
 
     return res.status(201).json({ ok: true })
