@@ -20,7 +20,7 @@ export default function Logo({ variant = 'dark', className = '', iconOnly = fals
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <img src={somaMark} alt="Igreja SôMMA" className="h-10 w-10 rounded-full object-cover" />
       {!iconOnly && (
-        <span className={`font-display text-2xl font-extrabold tracking-tight ${color}`}>SôMMA</span>
+        <span className={`font-display text-2xl font-extrabold tracking-tight ${color}`}> IGREJA SÔMMA</span>
       )}
     </span>
   )
