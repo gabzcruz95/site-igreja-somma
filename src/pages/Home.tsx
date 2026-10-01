@@ -13,6 +13,7 @@ import bwBaptism from '../assets/images/bw_baptism_pour.jpg'
 import leadersTogether from '../assets/images/leaders_together.jpg'
 import leaderPraying from '../assets/images/leader_praying.jpg'
 import communityGroup from '../assets/images/community_group.jpg'
+import heroSomma from '../assets/hero-somma.jpg'
 
 const instagramShots = [
   { src: communityGroup, alt: 'Encontro da comunidade SôMMA' },
@@ -38,22 +39,28 @@ export default function Home() {
     <>
       <Hero />
 
-      {/* IDENTIDADE DA SÔMMA */}
-      <section className="relative overflow-hidden bg-chumbo-dark py-28 md:py-40">
-        <div
-          ref={identityRef}
-          className="reveal container-page flex flex-col items-center gap-6 text-center"
-        >
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-terracota">
-            Identidade da SôMMA
-          </span>
-          <h2 className="max-w-3xl font-display text-3xl leading-[1.15] text-marfim sm:text-4xl md:text-5xl">
-            Um corpo. Uma família.
-            <br />
-            Uma essência: Cristo.
-          </h2>
-        </div>
-      </section>
+     {/* IDENTIDADE DA SÔMMA */}
+<section
+  className="relative overflow-hidden bg-chumbo-dark bg-cover bg-center py-28 md:py-40"
+  style={{ backgroundImage: `url(${heroSomma})` }}
+>
+  <div className="absolute inset-0 bg-chumbo-dark/45" />
+
+  <div
+    ref={identityRef}
+    className="reveal relative z-10 container-page flex flex-col items-center gap-6 text-center"
+  >
+    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-terracota">
+      Identidade da SôMMA
+    </span>
+
+    <h2 className="max-w-3xl font-display text-3xl leading-[1.15] text-marfim sm:text-4xl md:text-5xl">
+      Um corpo. Uma família.
+      <br />
+      Uma essência: Cristo.
+    </h2>
+  </div>
+</section>
 
       {/* QUEM SOMOS */}
       <section className="bg-white py-24 md:py-32">
