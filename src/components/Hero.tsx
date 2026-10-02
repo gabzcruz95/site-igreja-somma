@@ -1,13 +1,14 @@
 import Button from './Button'
-import PhotoPlaceholder from './PhotoPlaceholder'
+import heroSomma from '../assets/images/hero-somma.jpg'
 import { churchInfo } from '../data/services'
 
 export default function Hero() {
   return (
     <section className="relative flex min-h-[92vh] items-end overflow-hidden bg-chumbo-dark">
-      <PhotoPlaceholder
-        label="Fotografia de culto ou comunidade da SôMMA (substituir por imagem real)"
-        className="absolute inset-0 h-full w-full"
+      <img
+  src={heroSomma}
+  alt=""
+  className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-chumbo-dark via-chumbo-dark/55 to-chumbo-dark/10" />
 
