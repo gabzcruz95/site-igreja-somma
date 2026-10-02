@@ -15,6 +15,7 @@ import OrderConfirmation from './pages/OrderConfirmation'
 import Contact from './pages/Contact'
 import Membership from './pages/Membership'
 import Volunteer from './pages/Volunteer'
+import Generosity from './pages/Generosity'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/quero-ser-membro" element={<Membership />} />
           <Route path="/quero-servir" element={<Volunteer />} />
           <Route path="/contato" element={<Contact />} />
+          <Route path="/generosidade" element={<Generosity />} />
         </Routes>
       </main>
       <Footer />

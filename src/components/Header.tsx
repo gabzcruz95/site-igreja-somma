@@ -10,6 +10,7 @@ const navLinks = [
   { to: '/quem-somos', label: 'Quem somos' },
   { to: '/clas', label: 'Clãs' },
   { to: '/cultos', label: 'Cultos' },
+  { to: '/generosidade', label: 'Generosidade' },
   { to: '/loja', label: 'Loja' },
   { to: '/quero-ser-membro', label: 'Quero ser membro' },
   { to: '/quero-servir', label: 'Quero servir' },
