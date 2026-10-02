@@ -34,8 +34,7 @@ export default function Generosity() {
               Igreja SôMMA
             </p>
 
-            <h1 className="max-w-full overflow-hidden font-display text-[clamp(3.5rem,11vw,8rem)] font-extrabold leading-[0.85] tracking-tight text-marfim">
-              GENEROSIDADE
+            <h1 className="max-w-full font-display text-[clamp(3.2rem,5.5vw,6rem)] font-extrabold leading-[0.88] tracking-tight text-marfim">
             </h1>
 
             <div className="mt-8 h-px w-24 bg-terracota sm:mt-10" />
