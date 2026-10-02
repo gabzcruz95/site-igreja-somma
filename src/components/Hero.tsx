@@ -1,5 +1,5 @@
 import Button from './Button'
-import heroSomma from '../assets/images/hero-somma.jpg'
+import heroSomma from '../assets/hero-somma.jpg'
 import { churchInfo } from '../data/services'
 
 export default function Hero() {
