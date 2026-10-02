@@ -20,7 +20,9 @@ import camisetaAzulEscuroDetalhe from '../assets/images/products/camiseta-azul-e
 import livroEscadaDaMultiplicacao from '../assets/images/products/livro-escada-da-multiplicacao.jpg'
 
 export const productImages: Record<string, string> = {
+  'camiseta-drop-essencial': camisetaPretaFrente,
   'livro-escada-da-multiplicacao': livroEscadaDaMultiplicacao,
+
 }
 
 export const camisetaGalleries: Record<string, string[]> = {
